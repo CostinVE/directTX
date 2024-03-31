@@ -3,8 +3,9 @@ import { StatusBar } from "expo-status-bar";
 import { View, TouchableOpacity, TextInput } from "react-native";
 import { Text } from 'react-native-paper';
 import { Button } from "react-native-paper";
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { addDoc, doc, collection, setDoc, serverTimestamp } from 'firebase/firestore';
 
 
 export const Register = () => {
@@ -14,7 +15,28 @@ export const Register = () => {
 
   const handleCreateAccount = async () => {
     try {
-        await createUserWithEmailAndPassword(auth, email, password);
+
+      const randomNum = Math.floor(1000 + Math.random() * 9000);
+      // Append the random number to the username
+      const taggedUsername = `${username}#${randomNum}`;
+
+      const { user } = await createUserWithEmailAndPassword(auth, email, password);
+
+        const userID = user.uid
+
+        await setDoc(doc(db, 'Users', userID), {
+          UserID: userID,
+          Username: taggedUsername,
+          ProfilePic:'',
+          Bio: '',
+          Email: email,
+          Password: password,
+          DateCreated: serverTimestamp(),
+          Friends: []
+
+        });
+  
+
     } catch (err) {
         console.error(err);
     }
