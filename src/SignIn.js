@@ -1,41 +1,63 @@
 import React, {useState, useEffect} from 'react'
 import { StatusBar } from "expo-status-bar";
-import { auth } from '../firebase';
-import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
-import { View, TextInput } from 'react-native';
+import { auth, db } from '../firebase';
+import { signInWithEmailAndPassword, onAuthStateChanged, firestore } from 'firebase/auth';
+import { collection, doc, getDoc, exists } from 'firebase/firestore';
+import { View, TextInput, Alert } from 'react-native';
 import { Text, Button } from 'react-native-paper';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSignedIn } from '../redux-store/store';
+import { setSignedIn, updateUserData } from '../redux-store/actions';
+import { initialState } from '../redux-store/store';
 
 export const SignIn = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [currentUser, setCurrentUser] = useState(null);
+  
+  const userID = auth?.currentUser?.uid
 
-    const dispatch = useDispatch()
-    const isSigned = useSelector((state) => state.isSigned)
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
 
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setCurrentUser(user);
-        });
+  const dispatch = useDispatch();
+  const isSigned = useSelector((state) => state.isSigned);
 
-        return () => unsubscribe();
-    }, []);
+  useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+          setCurrentUser(user);
+      });
 
-    const signIn = async () => {
-        try {
-          // Use signInWithEmailAndPassword for existing accounts
-          const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      return () => unsubscribe();
+  }, []);
 
-          dispatch(setSignedIn());
+
+  const signIn = async () => {
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        dispatch(setSignedIn());
+
+        // Fetch user data from Firestore
+        const userID = auth.currentUser.uid;
+        const userDocRef = doc(collection(db, 'Users'), userID);
       
-          // Handle success (optional)
-          Alert.alert('Sign In Successful', `isSigned: ${isSigned}`);
-        } catch (err) {
-            alert("Sign in failed: " + error.message);
+        // Get the document snapshot
+        const userDocSnapshot = await getDoc(userDocRef);
+
+        if (userDocSnapshot.exists()) {
+            const userData = userDocSnapshot.data();
+            // Update Redux state with user data
+            dispatch(updateUserData(userData));
+
+            // Alert to display the properties of InitialState
+            const initialStateProperties = JSON.stringify(initialState, null, 2);
+            Alert.alert('Initial State Properties', initialStateProperties);
+        } else {
+            Alert.alert('User not found', 'No matching user data found in Firestore.');
         }
-      };
+    } catch (error) {
+        Alert.alert('Sign in failed', 'Sign in failed: ' + error.message);
+    }
+};
+
+
 
 
   

@@ -8,6 +8,8 @@ import Svg, { Xml, SvgXml} from 'react-native-svg';
 import CommunitySvg from '../assets/Community.svg'; //
 import { LoadingScreen } from './LoadingScreen';
 import { Profile } from './Feeds/Profile';
+import { Messages } from './Feeds/Messages';
+import { ChatActive } from './Feeds/ChatActive';
 
 
 
@@ -86,8 +88,13 @@ export const Homepage = () => {
         <View style={{ flex: 1, backgroundColor: '#20232a' }}>
         {/* Profile Component */}
         <View style={{ flex: 11, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-          <Profile />
-        </View>
+  {selectedTab === 'You' && <Profile />}
+  {selectedTab === 'Messages' && <Messages />}
+  {selectedTab === 'Communities' && <ChatActive />}
+  {selectedTab !== 'You' && selectedTab !== 'Messages' && selectedTab !== 'Communities' && (
+    <Text style={{ justifyContent: "center", color: "white", backgroundColor: '#20232a' }}>Main Content</Text>
+  )}
+</View>
     
           <View style={{ backgroundColor: '#35344a', flex: 1.5, flexDirection: "row", justifyContent: 'space-evenly', alignItems: 'center', borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
             {/* Navigation bar */}

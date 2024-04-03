@@ -17,9 +17,14 @@ export const Welcome = () => {
 
   useEffect(() => {
     if (isSigned) {
-      navigation.navigate('Homepage');
+        const timeout = setTimeout(() => {
+            navigation.navigate('Homepage');
+        }, 3000);
+
+        return () => clearTimeout(timeout);
     }
-  }, [isSigned, navigation]);
+}, [isSigned, navigation]);
+
 
   const goToRegister = () => {
     navigation.navigate('Register'); // Navigate to the "Register" screen

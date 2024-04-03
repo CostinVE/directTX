@@ -14,6 +14,7 @@ import { Homepage } from './src/Homepage';
 
 import { Provider as StoreProvider, useSelector } from 'react-redux';
 import store from './redux-store/store';
+import { ChatActive } from './src/Feeds/ChatActive';
 
 
 const Stack = createStackNavigator();
@@ -32,6 +33,9 @@ function MyStack() {
           headerShown: false // Hide the header for the SignIn screen
 }}/>
 <Stack.Screen name="Homepage" component={Homepage} options={{
+          headerShown: false // Hide the header for the SignIn screen
+}}/>
+<Stack.Screen name="ChatActive" component={ChatActive} options={{
           headerShown: false // Hide the header for the SignIn screen
 }}/>
     </Stack.Navigator>

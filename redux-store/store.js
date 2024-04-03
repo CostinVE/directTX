@@ -1,11 +1,18 @@
 // store.js
 
 import { configureStore } from '@reduxjs/toolkit';
+import { setSignedIn, updateUserData } from './actions'; // Importing action creators from the new actions file
 
 // Initial state
-const initialState = {
-  user: undefined,
-  isSigned: false
+export const initialState = {
+  isSigned: false,
+  isChating: false,
+  ChatPartner: '',
+  userID: '',
+  userName: '',
+  Bio: '',
+  DateJoined: '',
+  Friends: []
 };
 
 // Reducer
@@ -21,6 +28,17 @@ const handleState = (state = initialState, action) => {
         ...state,
         isSigned: true
       };
+    case 'SET_USER_DATA':
+      return {
+        ...state,
+        userID: action.payload.UserID,
+        userName: action.payload.Username,
+        Bio: action.payload.Bio,
+        DateJoined: action.payload.DateCreated,
+        Friends: action.payload.Friends,
+        isChating: action.payload.isChating, // Assign isChating from payload
+        ChatPartner: action.payload.ChatPartner // Assign ChatPartner from payload
+      };
     default:
       return state;
   }
@@ -29,14 +47,6 @@ const handleState = (state = initialState, action) => {
 // Configure store
 const store = configureStore({
   reducer: handleState
-});
-
-// Action types
-export const SET_SIGNED_IN = 'SET_SIGNED_IN';
-
-// Action creators
-export const setSignedIn = () => ({
-  type: SET_SIGNED_IN
 });
 
 export default store;
