@@ -8,6 +8,7 @@ export const initialState = {
   isSigned: false,
   isChating: false,
   ChatPartner: '',
+  RoomID: '',
   userID: '',
   userName: '',
   Bio: '',
@@ -36,8 +37,9 @@ const handleState = (state = initialState, action) => {
         Bio: action.payload.Bio,
         DateJoined: action.payload.DateCreated,
         Friends: action.payload.Friends,
-        isChating: action.payload.isChating, // Assign isChating from payload
-        ChatPartner: action.payload.ChatPartner // Assign ChatPartner from payload
+        isChating: action.payload.isChating, 
+        ChatPartner: action.payload.ChatPartner, 
+        RoomID: action.payload.RoomID
       };
     default:
       return state;

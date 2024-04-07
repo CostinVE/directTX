@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
-import { getDatabase, ref, query, orderByChild, equalTo, get } from 'firebase/database';
+import { getDatabase, ref, query, orderByChild, equalTo, get, set} from 'firebase/database';
+import { collection, addDoc, setDoc, doc } from 'firebase/firestore';
+import { auth, db } from "../../firebase"
 import { Text, Button } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; 
 import { SvgXml } from 'react-native-svg';
@@ -18,6 +20,10 @@ export const Messages = ({ user }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
+  const userID = auth?.currentUser?.uid
+
+  const RoomID = useSelector((state) => state.RoomID);
+
   const AvatarSvgXml = `
     <?xml version="1.0" encoding="UTF-8"?>
     <svg fill=none stroke="white" stroke-width=5px viewBox="0 -20 100 160">
@@ -32,7 +38,7 @@ export const Messages = ({ user }) => {
       setSearchText(text);
   
       // Reference to the 'users' node in the realtime database
-      const usersRef = ref(database, 'users');
+      const usersRef = ref(database, 'Users');
       // Create a query to order the results by child 'username' and filter by 'searchText'
       const q = query(usersRef, orderByChild('username'), equalTo(text));
       // Execute the query and get the result
@@ -72,12 +78,54 @@ export const Messages = ({ user }) => {
     }
   };
 
-  const handleChat = (user) => {
-    // Update Redux state with chat information
-    dispatch(updateUserData({ isChating: true, ChatPartner: user.username }));
-    // Navigate to the ChatActive screen
-    navigation.navigate('ChatActive');
+  const generateRandomString = (length) => {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
   };
+
+
+  const handleChat = async (user) => {
+    try {
+        if (!user) {
+            console.error('Error: User object is undefined');
+            return;
+        }
+
+        // Create a new RoomID
+        const RoomID = generateRandomString(12); // Implement generateRandomString function to generate a random string
+
+        // Reference to the 'Chats' collection in Firestore
+        const chatsCollectionRef = collection(db, 'Chats');
+
+        // Reference to the new document using RoomID as the document ID
+        const newChatDocRef = doc(chatsCollectionRef, RoomID);
+
+        const partnerID = user.userID
+
+        // Set the chat room details to Firestore with RoomID as the document ID
+        await setDoc(newChatDocRef, {
+            RoomID: RoomID,
+            ProfilePicA: '',
+            ProfilePicB: '',
+            UserA: userID,
+            UserB: partnerID
+        });
+
+        // Update Redux state
+        dispatch(updateUserData({ isChating: true, ChatPartner: user.username, RoomID: RoomID }));
+        navigation.navigate('ChatActive')
+    } catch (error) {
+        console.error('Error creating chat room:', error);
+    } 
+};
+
+
+
   
   return (
     <View style={{ width: '100%', flex: 8, backgroundColor: '#20232a'}}>

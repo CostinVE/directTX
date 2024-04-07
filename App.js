@@ -12,13 +12,13 @@ import { PaperProvider } from 'react-native-paper';
 import { SignIn } from './src/SignIn';
 import { Homepage } from './src/Homepage';
 
-import { Provider as StoreProvider, useSelector } from 'react-redux';
+import { Provider as StoreProvider} from 'react-redux';
 import store from './redux-store/store';
 import { ChatActive } from './src/Feeds/ChatActive';
-
+import { useDispatch, useSelector} from 'react-redux'
+import { updateUserData } from './redux-store/actions';
 
 const Stack = createStackNavigator();
-
 
 function MyStack() {
   return (
@@ -43,6 +43,7 @@ function MyStack() {
 }
 
 export default function App() {
+
  
   return (
     <StoreProvider store={store}>

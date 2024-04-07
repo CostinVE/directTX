@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'
 import { StatusBar } from "expo-status-bar";
 import { View, Text, Button, TouchableOpacity} from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 
 import { Path, Ellipse} from 'react-native-svg';
@@ -9,12 +10,12 @@ import CommunitySvg from '../assets/Community.svg'; //
 import { LoadingScreen } from './LoadingScreen';
 import { Profile } from './Feeds/Profile';
 import { Messages } from './Feeds/Messages';
-import { ChatActive } from './Feeds/ChatActive';
 
 
 
 
 export const Homepage = () => {
+
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('You');
 
