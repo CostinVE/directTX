@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {View,KeyboardAvoidingView,TextInput,Dimensions,Keyboard, Alert, } from "react-native";
 import { Text, Button } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { SvgXml } from "react-native-svg";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,12 +11,22 @@ import { doc, addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db, auth } from "../../firebase";
 import DMsMessageList from "./DMsMessageList";
 
+import {ref,set,
+get,
+child,
+orderByChild,
+equalTo,
+query,
+getDatabase,
+} from 'firebase/database';
+
 
 
 export const ChatActive = () => {
 
-
   const userID = auth.currentUser.uid
+
+  const database = getDatabase()
 
   const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false); // State to track if user is typing
@@ -80,6 +91,58 @@ export const ChatActive = () => {
     }
   };
 
+  const navigation = useNavigation()
+
+  const handleCallRequest = async () => {
+    try {
+      // Reference to the 'Users' node in the Realtime Database
+      const usersRef = ref(database, 'Users');
+  
+      // Query the database to find the user with the matching username
+      const q = query(usersRef, orderByChild('username'), equalTo(dmPartner));
+  
+      // Execute the query and get the result
+      const snapshot = await get(q);
+  
+      if (snapshot.exists()) {
+        // User object found, extract the userID
+        const userData = snapshot.val();
+        const userKey = Object.keys(userData)[0]; // Assuming there's only one matching user
+        const userID = userData[userKey].userID;
+  
+        // Reference to the 'Calls' node in the Realtime Database
+        const callsRef = ref(database, 'Calls');
+  
+        // Create a new object within the 'Calls' node with RoomID as the name
+        await set(child(callsRef, RoomID), {
+          // Add any initial properties you want for the room
+          participants: {
+            [userID]: true, // Add the user who initiated the call
+          },
+          // Add more properties as needed
+        });
+  
+        console.log(`Call room created with ID: ${RoomID}`);
+  
+        // Navigate to the call screen
+        navigation.navigate('CallActive');
+      } else {
+        console.log('User not found');
+      }
+    } catch (error) {
+      console.error('Error retrieving user data:', error);
+    }
+  };
+  
+
+  const handleCall = async () => {
+    // Call handleCallRequest to get the userID
+    handleCallRequest();
+    
+    // Navigate to the CallActive screen
+    navigation.navigate('CallActive');
+  };
+  
   
   
 
@@ -106,10 +169,9 @@ export const ChatActive = () => {
 </Text>
 </View>
 <View style={{ flexDirection: "row" }}>
-<Button
+<Button onPress={handleCall}
   icon={({ color, size }) => (
-    <Icon name="phone-in-talk" color="white" size={20} backgroundColor="#343a47" style={{ borderRadius: 20, padding: 4 }}
-    />
+    <Icon name="phone-in-talk" color="white" size={20} backgroundColor="#343a47" style={{ borderRadius: 20, padding: 4 }}/>
   )}
 />
 <Button

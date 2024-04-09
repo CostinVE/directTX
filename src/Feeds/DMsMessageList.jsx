@@ -91,9 +91,6 @@ const DmsMessageList = () => {
     </View>
   ))}
 </ScrollView>
-
-
-  
   );
 };
 

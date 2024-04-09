@@ -1,20 +1,30 @@
 import React, {useState, useEffect} from 'react'
 import { StatusBar } from "expo-status-bar";
-import { View, Text, Button, TouchableOpacity} from "react-native";
+import { View, Text, Button, TouchableOpacity, Alert} from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useSelector, useDispatch } from "react-redux";
+import { auth } from '../firebase';
 
 
-import { Path, Ellipse} from 'react-native-svg';
 import Svg, { Xml, SvgXml} from 'react-native-svg';
-import CommunitySvg from '../assets/Community.svg'; //
 import { LoadingScreen } from './LoadingScreen';
 import { Profile } from './Feeds/Profile';
 import { Messages } from './Feeds/Messages';
+import { ref, onValue, getDatabase } from 'firebase/database';
+import { updateUserData } from '../redux-store/actions';
+import { initialState } from '../redux-store/store';
 
 
 
 
 export const Homepage = () => {
+
+  const database = getDatabase()
+
+  const isCalled = useSelector((state) => state.isCalled) 
+  const dispatch = useDispatch();
+
+  const userID = auth?.currentUser?.uid;
 
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('You');
@@ -80,6 +90,60 @@ export const Homepage = () => {
 
     return () => clearTimeout(timeout);
   }, []);
+
+  useEffect(() => {
+    const databaseRef = ref(database, 'Calls');
+
+    const handleRoomChange = (snapshot) => {
+      const roomData = snapshot.val();
+      // Handle room data change, e.g., update UI to show available rooms
+      console.log('Room data changed:', roomData);
+    };
+
+    // Listen for changes in the "Calls" node
+    const unsubscribe = onValue(databaseRef, handleRoomChange);
+
+    // Clean up listener when component unmounts
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const databaseRef = ref(database, 'Calls');
+  
+    const handleRoomChange = (snapshot) => {
+      try {
+        const roomData = snapshot.val();
+        console.log('Room data changed:', roomData);
+  
+        if (roomData) {
+          const isInvited = Object.values(roomData).some(room => Object.keys(room.participants).includes(userID));
+          if (isInvited) {
+            // Dispatch action to update user data with isCalled set to true
+            dispatch(updateUserData({ isCalled: true }));
+            Alert.alert('You are being called');
+          }
+        }
+              
+      } catch (error) {
+        console.error('Error handling room change:', error);
+      }
+    };
+  
+    const unsubscribe = onValue(databaseRef, handleRoomChange);
+    return () => unsubscribe();
+  }, [dispatch, userID]);
+
+  
+  
+  useEffect(() => {
+    if (isCalled) {
+      Alert.alert('You are being called');
+    }
+  }, [isCalled]);
+  
+
+
+  
 
   return (
     <>

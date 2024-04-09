@@ -8,6 +8,8 @@ export const initialState = {
   isSigned: false,
   isChating: false,
   ChatPartner: '',
+  inCall: false,
+  isCalled: false,
   RoomID: '',
   userID: '',
   userName: '',
@@ -39,6 +41,8 @@ const handleState = (state = initialState, action) => {
         Friends: action.payload.Friends,
         isChating: action.payload.isChating, 
         ChatPartner: action.payload.ChatPartner, 
+        inCall: action.payload.inCall,
+        isCalled: action.payload.isCalled,
         RoomID: action.payload.RoomID
       };
     default:
