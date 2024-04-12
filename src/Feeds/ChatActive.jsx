@@ -148,7 +148,7 @@ export const ChatActive = () => {
 
   return (
     <View style={{ width: "100%", flex: 8, backgroundColor: "#20232a" }}>
-      <View style={{position: "fixed",flexDirection: "row",marginTop: "6%",justifyContent: "space-between",
+      <View style={{position: "fixed",flexDirection: "row",marginTop: "12%",justifyContent: "space-between",
         }}
       >
         <View style={{ flexDirection: "row" }}>

@@ -47,28 +47,28 @@ export const Profile = () => {
     )
   }
 
-  const DateDisplay = () => {
-    const dateCreated = useSelector(state => state.DateJoined);
+  // const DateDisplay = () => {
+  //   const dateCreated = useSelector(state => state.DateJoined);
   
 
   
-     // Function to format the date to dd/mm/yy
-    const formatDate = (timestamp) => {
-    const date = new Date(timestamp.toDate());
+  //    // Function to format the date to dd/mm/yy
+  //   const formatDate = (timestamp) => {
+  //   const date = new Date(timestamp.toDate());
 
-    // Get the day, month, and year
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-based
-    const year = String(date.getFullYear()).slice(-2); // Extracting the last two digits of the year
+  //   // Get the day, month, and year
+  //   const day = String(date.getDate()).padStart(2, '0');
+  //   const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-based
+  //   const year = String(date.getFullYear()).slice(-2); // Extracting the last two digits of the year
 
-    return `${day}/${month}/${year}`;
-  };
+  //   return `${day}/${month}/${year}`;
+  // };
   
  
-    return (
-      <Text variant='bodyMedium' style={{ color: "white" }}>{formatDate(dateCreated)}</Text>
-    );
-  };
+  //   return (
+  //     <Text variant='bodyMedium' style={{ color: "white" }}>{formatDate(dateCreated)}</Text>
+  //   );
+  // };
 
     const AvatarSvgXml=`
     <?xml version="1.0" encoding="UTF-8"?>
@@ -79,7 +79,7 @@ export const Profile = () => {
 
     return (
       <View style={{ width: '100%', flex: 8, backgroundColor: '#20232a'}}>
-        <View style={{ height:"18%", flexDirection:"row", backgroundColor: "#66ff66", zIndex:20, marginBottom:"25%" }}>
+        <View style={{ height:"14%", flexDirection:"row", backgroundColor: "#66ff66", zIndex:20, marginBottom:"25%" }}>
         <View style={{ position: "relative", width: 100, height: 100, backgroundColor: "#20232a", borderRadius: 50, borderColor: "white", borderWidth: 2 , position: "absolute", bottom: -65, marginLeft: 20}}>
     <SvgXml xml={AvatarSvgXml} width="90" height="90" style={{ backgroundColor: "transparent"}} />
   </View>
@@ -97,7 +97,7 @@ export const Profile = () => {
       ) : (
         <>
           <Text variant='titleSmall' style={{ color: "#9292ad" }}>DirectTX Member Since</Text>
-          <DateDisplay />
+          {/* <DateDisplay /> */}
         </>
       )}
     </View>

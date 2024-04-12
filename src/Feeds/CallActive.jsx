@@ -6,12 +6,15 @@ import { SvgXml } from "react-native-svg";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 
+import { ref, set } from 'firebase/database';
+// import { RTCView, mediaDevices } from "react-native-webrtc";
 
 export const CallActive= () => {
 
     const RoomID = useSelector((state) => state.RoomID);
 
     const ChatPartner= useSelector((state) => state.ChatPartner)
+    const localStreamRef = useRef(null);
   
    
 
@@ -21,6 +24,39 @@ export const CallActive= () => {
       <ellipse class="cls-1" cx="45.58" cy="26.04" rx="25.66" ry="24.54"/>
       <path class="cls-1" d="m86.74,58.99H5.92c-.47.4-4.24,3.77-4.41,9.76-.18,6.49,3.34,28.44,3.71,28.76h82.59s6.35-38.51-1.06-38.51Z"/>
       </svg>`;
+
+      useEffect(() => {
+        // Get access to the user's microphone audio stream
+        const startLocalStream = async () => {
+          try {
+            const stream = await mediaDevices.getUserMedia({ audio: true });
+            localStreamRef.current = stream;
+            // Send the audio stream to the signaling server (Firebase Realtime Database)
+            const callsRef = ref(database, `Calls/${RoomID}/AudioStream`);
+            set(callsRef, stream);
+          } catch (error) {
+            console.error('Error getting local stream:', error);
+          }
+        };
+    
+        startLocalStream();
+    
+        return () => {
+          // Cleanup: stop local stream when component unmounts
+          if (localStreamRef.current) {
+            localStreamRef.current.release();
+          }
+        };
+      }, [RoomID]);
+    
+      const endCall = () => {
+        // Cleanup: stop local stream when call ends
+        if (localStreamRef.current) {
+          localStreamRef.current.release();
+        }
+        // Navigate back to previous screen or perform any other necessary actions
+        navigation.goBack();
+      };
   
    
     
@@ -29,6 +65,8 @@ export const CallActive= () => {
         <View style={{ flex:1, backgroundColor: '#20232a'}}>
         {/* Hide the status bar */}
         <StatusBar hidden />
+        {localStreamRef.current && <RTCView streamURL={localStreamRef.current.toURL()} />}
+
   
         {/* Your custom view */}
           <View style={{ flexDirection: 'row', padding: 10, marginTop:15, width:'95%', justifyContent:"space-between", alignSelf:"center", backgroundColor: "#181b21", borderRadius:20 }}>

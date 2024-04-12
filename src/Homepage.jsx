@@ -10,6 +10,7 @@ import Svg, { Xml, SvgXml} from 'react-native-svg';
 import { LoadingScreen } from './LoadingScreen';
 import { Profile } from './Feeds/Profile';
 import { Messages } from './Feeds/Messages';
+import { CallIncoming } from './callIncoming';
 import { ref, onValue, getDatabase } from 'firebase/database';
 import { updateUserData } from '../redux-store/actions';
 import { initialState } from '../redux-store/store';
@@ -28,6 +29,7 @@ export const Homepage = () => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('You');
+  const [showCallIncoming, setShowCallIncoming] = useState(false);
 
   const handleClick = (option) => {
     switch (option) {
@@ -93,22 +95,6 @@ export const Homepage = () => {
 
   useEffect(() => {
     const databaseRef = ref(database, 'Calls');
-
-    const handleRoomChange = (snapshot) => {
-      const roomData = snapshot.val();
-      // Handle room data change, e.g., update UI to show available rooms
-      console.log('Room data changed:', roomData);
-    };
-
-    // Listen for changes in the "Calls" node
-    const unsubscribe = onValue(databaseRef, handleRoomChange);
-
-    // Clean up listener when component unmounts
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const databaseRef = ref(database, 'Calls');
   
     const handleRoomChange = (snapshot) => {
       try {
@@ -120,7 +106,7 @@ export const Homepage = () => {
           if (isInvited) {
             // Dispatch action to update user data with isCalled set to true
             dispatch(updateUserData({ isCalled: true }));
-            Alert.alert('You are being called');
+            setShowCallIncoming(true);
           }
         }
               
@@ -128,19 +114,19 @@ export const Homepage = () => {
         console.error('Error handling room change:', error);
       }
     };
-  
+
     const unsubscribe = onValue(databaseRef, handleRoomChange);
     return () => unsubscribe();
   }, [dispatch, userID]);
 
-  
-  
+
   useEffect(() => {
-    if (isCalled) {
-      Alert.alert('You are being called');
+    if (!isCalled) {
+        setShowCallIncoming(false);
     }
-  }, [isCalled]);
+}, [isCalled]);
   
+
 
 
   
@@ -151,7 +137,7 @@ export const Homepage = () => {
         <LoadingScreen />
       ) : (
         <View style={{ flex: 1, backgroundColor: '#20232a' }}>
-        {/* Profile Component */}
+         {showCallIncoming && <CallIncoming />}
         <View style={{ flex: 11, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
   {selectedTab === 'You' && <Profile />}
   {selectedTab === 'Messages' && <Messages />}
